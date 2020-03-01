@@ -3,6 +3,7 @@ import {
     Box,
     Button,
     Divider,
+    Container,
     Typography,
 } from "@material-ui/core";
 import {createStyles, makeStyles} from "@material-ui/core/styles";
@@ -30,6 +31,11 @@ const useStyles = makeStyles((theme: Theme) =>
         scratchpadDivider: {
             margin: theme.spacing(1),
         },
+        centerHoriz: {
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+        },
     }),
 );
 
@@ -44,14 +50,13 @@ export interface IScratchpadProps {
  */
 export default function Scratchpad(props: IScratchpadProps) {
     const classes = useStyles();
-    const [pageData, updatePageData] =
-        useState(spLoad(props.pageId));
+    const [pageData, updatePageData] = useState(spLoad(props.pageId));
 
     // eslint-disable-next-line
-    function updateItems(newItems: IScratchpadItem[]) {
+    function onContentsChange(newContents: IScratchpadItem[]) {
         updatePageData({
             ...pageData,
-            contents: newItems,
+            contents: newContents,
         });
     }
 
@@ -64,13 +69,19 @@ export default function Scratchpad(props: IScratchpadProps) {
                 </Typography>
             </Box>
             <Divider className={classes.scratchpadDivider}/>
-            <ScratchpadList items={pageData.contents}
-                updateItems={updateItems}
-            />
-            <Button onClick={() => spStore(pageData, pageData.contents)}
-                variant="contained">
+            <ScratchpadList contents={pageData.contents}
+                onContentsChange={onContentsChange} />
+            <Container className={classes.centerHoriz}>
+                <Button onClick={() => spStore(pageData, pageData.contents)}
+                    variant="contained">
                 Save Page
-            </Button>
+                </Button>
+                <div style={{width: "1rem"}}></div>
+                <Button onClick={() => spRemove(pageData.pid)}
+                    variant="contained">
+                Delete Page
+                </Button>
+            </Container>
         </Box>
     );
 }
@@ -91,13 +102,18 @@ function spLoad(pageId: string): IPageData {
     if (storedData) {
         return JSON.parse(storedData);
     } else {
-        // window.location.pathname = "/";
         return {
-            title: "Untitled",
-            pid: "untitled.sp",
+            title: `${window.location.pathname.slice(1).split(".")[0]}`,
+            pid: `${window.location.pathname.slice(1)}`,
             contents: [],
         };
     }
+}
+
+// eslint-disable-next-line
+function spRemove(pageId: string) {
+    localStorage.removeItem(pageId);
+    window.location.pathname = "/";
 }
 
 /**

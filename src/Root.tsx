@@ -7,12 +7,14 @@ import {createStyles, makeStyles} from "@material-ui/core/styles";
 import {Menu as MenuIcon} from "@material-ui/icons";
 import STRINGS from "./strings.json";
 import Scratchpad from "./scratchpad/Scratchpad";
-import "./Root.css";
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
             flexGrow: 1,
+            margin: 0,
+            padding: 0,
+            boxSizing: "border-box",
         },
         menuButton: {
             marginRight: theme.spacing(2),
@@ -24,6 +26,23 @@ export const useStyles = makeStyles((theme: Theme) =>
 );
 
 const queriedPageId = window.location.pathname.slice(1);
+
+if (queriedPageId === "") {
+    const storedPageId = getLocalStorageKeys()[0];
+    console.log(storedPageId);
+    window.location.pathname = `${storedPageId}`;
+}
+
+// eslint-disable-next-line
+function getLocalStorageKeys(): string[] {
+    const keyList = [];
+    for (const key in localStorage) {
+        if (typeof localStorage[key] === "string") {
+            keyList.push(key);
+        }
+    }
+    return keyList;
+}
 
 /**
  * Root React Component for the app
